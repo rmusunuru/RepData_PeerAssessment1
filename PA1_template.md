@@ -1,9 +1,4 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
@@ -11,7 +6,8 @@ output:
 Check if the data file (.zip and .csv) already exists or not, if does not exist , download the file and unzip
 Read the data i.e (load to a R data frame)
 
-```{r message=FALSE}
+
+```r
 fileurl <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
 
 zip_stat <- file.exists("activity.zip")
@@ -26,9 +22,9 @@ activity <- read.csv("activity.csv",header= TRUE,sep =",")
 
 Transform the date to date format
 
-```{r message=FALSE}
+
+```r
 activity$date <- as.Date(activity$date)
-  
 ```
 
 
@@ -39,7 +35,8 @@ Calculate the total no.of steps taken per day and do histogram
 Excluded the NAs for this part of the assignment, as NAs do mean there is no data avaialable 
 Looked at the days for which the data is missing or NAs it is been missing for the whole days
 
-```{r message=FALSE,warning=FALSE}
+
+```r
 require(dplyr)
 activity_complete <- activity[!is.na(activity$steps),]
 
@@ -53,20 +50,24 @@ hist(activity_day$steps,
      col="green")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
+
 Calculate mean and median of total no.of steps per day
-```{r message=FALSE,warning=FALSE}
+
+```r
 totalmean <- as.numeric(mean(activity_day$steps))
 totalmedian <- median(activity_day$steps)
 ```
 
-Mean total number of steps taken per day are `r totalmean`
+Mean total number of steps taken per day are 1.0766189\times 10^{4}
 
-Median total number of steps taken per day are `r totalmedian`
+Median total number of steps taken per day are 10765
 
 
 ## What is the average daily activity pattern?
 
-```{r message=FALSE,warning=FALSE}
+
+```r
 require(ggplot2)
 library(ggplot2)
 avg_act <- aggregate(activity$steps, FUN = mean, by = list(activity$interval), na.rm = TRUE)
@@ -81,33 +82,34 @@ avg_act$Interval<-as.POSIXct(avg_act$Interval,format="%H:%M:%S")
 
 qplot(avg_act$Interval, avg_act$AvgSteps, geom = "line", 
       xlab= "5-min Time Interval", ylab= "Avg No.of Steps")
-
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png) 
+
 Calculate the 5-min interval with max avg no.of steps across all days
-```{r message=FALSE,warning=FALSE}
+
+```r
 max_int <- avg_act$Interval[which(avg_act$AvgSteps == max(avg_act$AvgSteps))]
 max_int <- as.character(max_int)
 max_int <- substr(max_int,12,16)
 ```
 
-5-Minute Interval that contains  maximum number of steps `r max_int`
+5-Minute Interval that contains  maximum number of steps 08:35
 
 ## Imputing missing values
 
-```{r message=FALSE,warning=FALSE}
 
+```r
 activity_missing <- activity[is.na(activity$steps),]
 count1 <- count(activity_missing)
 count1 <- count1[[1]]
-
 ```
 
-Total number of missing values in the dataset `r count1`
+Total number of missing values in the dataset 2304
 
 fill the missing values with the mean value for the same 5-minute interval
-```{r message=FALSE,warning=FALSE}
 
+```r
 complete <- activity
 filled <- 1:length(activity$steps)
 for (i in length(filled)) {
@@ -116,11 +118,11 @@ for (i in length(filled)) {
       else filled <- (avg_act1[avg_act1$Interval == activity$interval[i], "AvgSteps"])
 }
 complete$steps[is.na(complete$steps)] <- filled[!is.na(filled)]
-
 ```
 
 Calculate the Total no.of steps per day, with missing values filled in
-```{r message=FALSE,warning=FALSE}
+
+```r
 by_date <- complete %>% group_by(date)
 complete_day <- by_date %>% summarise_each(funs(sum), steps)
 
@@ -131,20 +133,24 @@ hist(complete_day$steps,
      col="green")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-9-1.png) 
+
 
 Calculate mean and median of total no.of steps per day with missing values filled in
-```{r message=FALSE,warning=FALSE}
+
+```r
 totalmeanc <- as.numeric(mean(complete_day$steps))
 totalmedianc <- median(complete_day$steps)
 ```
 
-Mean total number of steps taken per day are `r totalmeanc`
+Mean total number of steps taken per day are 9394.8506032
 
-Median total number of steps taken per day are `r totalmedianc`
+Median total number of steps taken per day are 1.0395\times 10^{4}
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-```{r message=FALSE,warning=FALSE}
+
+```r
 complete$date <- as.POSIXct(complete$date)
 day.sep <- function(date) {
   day <- weekdays(date)
@@ -158,5 +164,7 @@ averages <- aggregate(steps ~ interval + day, data = complete, mean)
 ggplot(averages, aes(interval, steps)) + geom_line() + facet_grid(day ~ .) + 
   xlab("5-minute interval") + ylab("Avg Number of steps")
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-11-1.png) 
 
 
