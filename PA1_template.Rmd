@@ -15,7 +15,7 @@ Read the data i.e (load to a R data frame)
 fileurl <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
 
 zip_stat <- file.exists("activity.zip")
-if (!zip_stat) download.file(url1,destfile="activity.zip")
+if (!zip_stat) download.file(fileurl1,destfile="activity.zip")
 
 file_stat <- file.exists("activity.csv")
 if (!file_stat) unzip("activity.zip",files = NULL, list=FALSE,overwrite= TRUE, 
